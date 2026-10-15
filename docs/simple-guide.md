@@ -4,7 +4,8 @@
 Что внутри: что за проблема, что мы меняем (и почему именно так), как применить, как проверить, как откатить,
 чего патч не делает. Технические детали (адреса, байты) — в конце, в приложении; в основной части они не нужны.
 
-Связанные документы: технический разбор — `report-5.17.6.7.md`, интерактивная схема — `scheme.html`.
+Связанные документы: технический разбор — `calman-licensing-report.md` и `calman-5.17.6.7-patch-report.md`,
+схема — `calman-patch.html` (в папке `.archify/architecture-calman-patch-20261015-1910/`).
 
 ---
 
@@ -106,16 +107,21 @@ Meter license not found; Defaulting to Simulated meter
 Что нужно: права администратора и 5 минут. CalMAN должен быть закрыт — скрипт закроет его сам, но если в программе
 шла работа, лучше сохранить её заранее.
 
-### 5.1 Если установлена 5.17.6.7
+### 5.1 Основной вариант — универсальный скрипт (подходит любой версии)
 
 ```
-calman-ultimate-patch-5.17.6.7.bat
+calman-patch-universal.bat
 ```
 
-### 5.2 Если установлена 5.17.5.3
+Он **не содержит адресов**: сам находит пять мест по внутренней структуре файлов (в managed-сборке — по таблицам
+метаданных .NET, в native — по строкам лицензирования). Проверен на 5.17.4.16, 5.17.5.3 и 5.17.6.7.
+После обновления CalMAN, скорее всего, подойдёт он же.
+
+### 5.2 Версионные скрипты (для справки, с жёсткими адресами)
 
 ```
-calman-ultimate-patch.bat
+calman-ultimate-patch.bat              → 5.17.5.3 и 5.17.4.16 (эти две сборки совпадают по точкам патча)
+calman-ultimate-patch-5.17.6.7.bat     → 5.17.6.7
 ```
 
 Запуск: правый клик → «Запуск от имени администратора» (если прав нет, скрипт сам попросит их и перезапустится).
@@ -126,20 +132,18 @@ calman-ultimate-patch.bat
    ничего не записывая (это защита от «перепутал скрипт»).
 2. Если правки уже применены — пропускает их и говорит `already patched`.
 3. Делает резервные копии `.orig` и применяет недостающие правки.
-4. Печатает отчёт: что применено, что уже было.
+4. Печатает отчёт: что применено, что уже было (в универсальном — с найденными адресами).
 
-Пример нормального вывода (на уже пропатченной машине):
+Пример нормального вывода (универсальный скрипт на уже пропатченной машине):
 
 ```
-== license (CalMAN_Workflow.dll)
-   LicenseDescription::get_Value : already patched
-   ApplicationLicensing::SiteLicense : already patched
-   stage complete, next stage
-== item licenses (Common\calmanv5.dll)
-   Meters gate : already patched
-   Sources gate : already patched
-   Displays gate : already patched
-   stage complete, next stage
+== CalMAN_Workflow.dll
+   CalMAN_Workflow.dll : LicenseDescription.get_Value (managed) : already patched (0x467B7)
+   CalMAN_Workflow.dll : ApplicationLicensing.SiteLicense (managed) : already patched (0x444DC)
+== Common\calmanv5.dll
+   Common\calmanv5.dll : meters gate (native) : already patched (0x43A8F0)
+   Common\calmanv5.dll : sources gate (native) : already patched (0x43B6C0)
+   Common\calmanv5.dll : displays gate (native) : already patched (0x438380)
 Done. Start Calman: ...
 ```
 
@@ -227,7 +231,7 @@ calman-ultimate-patch-5.17.6.7.bat restore      (или calman-ultimate-patch.ba
 | # | Файл | Адрес | Было | Стало |
 |---|---|---|---|---|
 | 1 | `CalMAN_Workflow.dll` | файл `0x46A47` | `1E 02 7B 9D 08 00 04 2A` | `0E 1F 51 2A` |
-| 2 | `CalMAN_Workflow.dll` | файл `0x44884` | `1B 30 05 00 28 02 00 00` | `0A 17 2A` |
+| 2 | `CalMAN_Workflow.dll` | файл `0x4476C` | `1B 30 05 00 F9 00 00 00` | `0A 17 2A` |
 | 3 | `Common\calmanv5.dll` | RVA `0x43B530` | `55 8B EC 81 EC 08 01 00 00` | `B8 01 00 00 00 C2 08 00` |
 | 4 | `Common\calmanv5.dll` | RVA `0x43C300` | `55 8B EC 81 EC 0C 01 00 00` | `B8 01 00 00 00 C2 08 00` |
 | 5 | `Common\calmanv5.dll` | RVA `0x438FC0` | `55 8B EC 81 EC 0C 01 00 00` | `B8 01 00 00 00 C2 08 00` |

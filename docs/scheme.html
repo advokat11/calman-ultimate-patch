@@ -5578,13 +5578,25 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
       <div class="card">
         <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Универсальный патчер: без адресов</h3>
+        </div>
+        <ul>
+          <li>calman-patch-universal.bat ищет мишени сам: managed — через таблицы метаданных .NET, native — через строки лицензирования</li>
+          <li>Проверен на 5.17.4.16, 5.17.5.3 и 5.17.6.7; повторный запуск идемпотентен</li>
+          <li>Результат для 5.17.5.3 совпал байт-в-байт с эталонной пропатченной сборкой</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
           <div class="card-dot cyan"></div>
           <h3>Патч 1–2 · CalMAN_Workflow.dll (managed)</h3>
         </div>
         <ul>
           <li>get_Value: 5.17.6.7 @0x46A47 — 1E 02 7B 9D 08 00 04 2A → 0E 1F 51 2A (ldc.i4.s 81)</li>
-          <li>SiteLicense: 5.17.6.7 @0x44884 — fat-заголовок → 0A 17 2A (ldc.i4.1; ret)</li>
-          <li>5.17.5.3: те же правки по 0x467B7 и 0x444DC (токен поля 0x0400089A)</li>
+          <li>SiteLicense: 5.17.6.7 @0x4476C — fat-заголовок → 0A 17 2A (ldc.i4.1; ret)</li>
+          <li>5.17.4.16 и 5.17.5.3: 0x467B7 и 0x444DC (совпадают до байта, токен 0x0400089A)</li>
         </ul>
       </div>
 

@@ -9,8 +9,9 @@ REM  In-place byte edits (two files). Only method bodies change, no metadata is
 REM  rewritten, file sizes stay identical. Pristine copies are kept next to each
 REM  file as <name>.orig
 REM
-REM  Offsets are specific to build 5.17.6.7. The 5.17.5.3 script is a separate
-REM  file (calman-ultimate-patch.bat). Every edit verifies the original bytes
+REM  Offsets are specific to build 5.17.6.7. Prefer calman-patch-universal.bat,
+REM  which finds the same targets itself and is not tied to a version; the two
+REM  version-pinned scripts stay for reference. Every edit verifies the original bytes
 REM  first and only writes when they match, so aiming the wrong script at the
 REM  wrong build stops with a message instead of corrupting anything.
 REM
@@ -27,8 +28,8 @@ REM      set and the base license from "Calman Ultimate for Business".
 REM      (5.17.5.3 had the same body at 0x467B7 with field token 0x0400089A.)
 REM
 REM  1b) CalMAN_Workflow.ApplicationLicensing::SiteLicense()
-REM      file offset 0x00044884
-REM      fat IL header (flags 0x301B, maxstack 5, code size 0x228)
+REM      file offset 0x0004476C
+REM      fat IL header (flags 0x301B, maxstack 5, code size 0xF9)
 REM      becomes
 REM      tiny IL header (code size 2) + ldc.i4.1 / ret
 REM      returns true, so the constructor and RefreshLicenses() take the
@@ -142,9 +143,9 @@ $stage1 = @{
         }
         [pscustomobject]@{
             Name = 'ApplicationLicensing::SiteLicense'
-            Off  = 0x00044884
+            Off  = 0x0004476C
             Rva  = [uint32]0
-            Orig = [byte[]](0x1B,0x30,0x05,0x00,0x28,0x02,0x00,0x00)
+            Orig = [byte[]](0x1B,0x30,0x05,0x00,0xF9,0x00,0x00,0x00)
             New  = [byte[]](0x0A,0x17,0x2A)
             Note = 'now returns true (skips online validation)'
         }
